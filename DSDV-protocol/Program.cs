@@ -60,6 +60,7 @@ namespace DSDV_protocol
                         distanceVector.Print(id);
                         break;
                     case "7":
+                        distanceVector.SendMessage();
                         break;
                     case "8":
                         run = false;

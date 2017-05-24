@@ -13,7 +13,7 @@ namespace DSDV_protocol
         private SortedDictionary<string, Thread> routersProcesses = new SortedDictionary<string, Thread>();
         private SortedDictionary<string, Router> routers = new SortedDictionary<string, Router>();
         private Graph graph;
-        private string filepath = "E:\\Projects\\DSDV-protocol\\DSDV-protocol\\data2.txt";
+        private string filepath = "E:\\Projects\\DSDV-protocol\\DSDV-protocol\\data.txt";
 
         public DistanceVector()
         {
@@ -26,6 +26,11 @@ namespace DSDV_protocol
             {
                 rt.Value.Start();
             }
+        }
+
+        public void SendMessage()
+        {
+            graph.SendMessage();
         }
 
         public void AddNewRouter(string _id, string[] _ids, int[] weights)
@@ -51,10 +56,10 @@ namespace DSDV_protocol
 
         public void RemoveRouter(string _id)
         {
-            graph.RemoveRouter(_id);
             routersProcesses[_id].Abort();
             routersProcesses.Remove(_id);
             routers.Remove(_id);
+            graph.RemoveRouter(_id);
         }
 
         public void UpdateLink(string _first, string _second, int _distance)

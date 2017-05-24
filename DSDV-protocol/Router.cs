@@ -28,7 +28,7 @@ namespace DSDV_protocol
         {
             Id = _id;
             network = _network;
-            updateTimer = new System.Timers.Timer(9000);
+            updateTimer = new System.Timers.Timer(6000);
             updateTimer.Elapsed += UpdateRoutingTable;
         }
 
@@ -66,9 +66,18 @@ namespace DSDV_protocol
                             SortedDictionary<string, RouterReplica> neighbourData = new SortedDictionary<string, RouterReplica>(neighbour.GetRoutingData());
                             if (!IsMyNeighbour(neighbour.Id))                   
                             {
-                                neighbours.Add(neighbour.Id, GenerateReplica(neighbour, GetDistance(neighbourData)));        
+                                RouterReplica replica = GenerateReplica(neighbour, GetDistance(neighbourData));
+                                neighbours.Add(neighbour.Id, replica);
+                                routingTable.UpdateLink(replica);
+                                neighbours[neighbour.Id].StartTimer();
+                            }
+                            else
+                            {
+                                neighbours[neighbour.Id].StopTimer();
+                                neighbours[neighbour.Id].StartTimer();
                             }
                             routingTable.Update(neighbourData, neighbour.Id);
+                            //Use break here
                         }
                     }
                 }
@@ -81,7 +90,9 @@ namespace DSDV_protocol
             SortedDictionary<string, RouterReplica> neighbourData = new SortedDictionary<string, RouterReplica>(network[_id].GetRoutingData());
             if (!IsMyNeighbour(_id))
             {
-                neighbours.Add(_id, GenerateReplica(network[_id], GetDistance(neighbourData)));
+                RouterReplica replica = GenerateReplica(network[_id], GetDistance(neighbourData));
+                neighbours.Add(_id, replica);
+                routingTable.UpdateLink(replica);
             }
             routingTable.Update(neighbourData, _id);
         }
@@ -124,6 +135,8 @@ namespace DSDV_protocol
 
             if (replica.Id == Id)
                 selfReplica = replica;
+            else
+                replica.StartTimer();
         }
 
         public void UpdateLink(Router _router, int _distance)
@@ -147,13 +160,18 @@ namespace DSDV_protocol
         {
             Console.WriteLine("Lost connection");
             RouterReplica replica = sender as RouterReplica;
-            neighbours.Remove(replica.Id);
+            RemoveLinkById(replica.Id);
         }
 
         public void RemoveLink(Router _router)
         {
-            neighbours.Remove(_router.Id);
-            routingTable.SetLost(_router.Id);
+            RemoveLinkById(_router.Id);
+        }
+
+        public void RemoveLinkById(string _id)
+        {
+            neighbours.Remove(_id);
+            routingTable.SetLost(_id);
             //UpdateRoutingTable(this, null);                 // Kaimynai turi gaut tik is manes
             selfReplica.GenerateSequenceNumber(true);
             for (int i = 0; i < neighbours.Count; i++)
@@ -166,6 +184,11 @@ namespace DSDV_protocol
         {
             updateTimer.Stop();
             updateTimer.Close();
+
+            for(int i = 0; i < neighbours.Count; i++)
+            {
+                neighbours.ElementAt(i).Value.StopTimer();
+            }
 
             sentNeighbours.Clear();
         }

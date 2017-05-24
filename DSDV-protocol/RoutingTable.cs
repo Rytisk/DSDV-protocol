@@ -43,7 +43,7 @@ namespace DSDV_protocol
         public void Update(SortedDictionary<string, RouterReplica> _neighbourData, string _neighbourId)
         {
             SortedDictionary<string, int> result = new SortedDictionary<string, int>();
-            
+
             UpdateUnknownRouters(_neighbourData, _neighbourId);
 
             var replica = routingTable[_neighbourId];
@@ -104,15 +104,18 @@ namespace DSDV_protocol
 
         public void SetLost(string _id)
         {
-            var replica = routingTable[_id];
-            replica.Distance = int.MaxValue;
-            replica.NextHop = "";
-            replica.GenerateSequenceNumber(false);
-            foreach (var item in routingTable.Where(id => id.Value.NextHop == _id))
+            if(routingTable.ContainsKey(_id))
             {
-                item.Value.Distance = int.MaxValue;
-                item.Value.NextHop = "";
-                item.Value.GenerateSequenceNumber(false);
+                var replica = routingTable[_id];
+                replica.Distance = int.MaxValue;
+                replica.NextHop = "-";
+                replica.GenerateSequenceNumber(false);
+                foreach (var item in routingTable.Where(id => id.Value.NextHop == _id))
+                {
+                    item.Value.Distance = int.MaxValue;
+                    item.Value.NextHop = "-";
+                    item.Value.GenerateSequenceNumber(false);
+                }
             }
         }
 
@@ -129,6 +132,18 @@ namespace DSDV_protocol
             strBuilder.Append(string.Format("--------------------------------------------------")).Append("\n");
 
             return strBuilder.ToString();
+        }
+
+        public void CleanUp()
+        {
+            for(int i = routingTable.Count - 1; i > -1; i--)
+            {
+                if (routingTable.ElementAt(i).Value.Distance == int.MaxValue && routingTable.ElementAt(i).Value.SequenceCount % 2 != 0)
+                {
+                    routingTable.ElementAt(i).Value.StopTimer();
+                    routingTable.Remove(routingTable.ElementAt(i).Key);
+                }
+            }
         }
     }
 }

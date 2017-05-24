@@ -34,6 +34,11 @@ namespace DSDV_protocol
             }
         }
 
+        public void SendMessage()
+        {
+            //Routers.ElementAt(0).Set(5);
+        }
+
         public void AddPair(Router _first, Router _second, int _distance)
         {
             AddToList(_first);

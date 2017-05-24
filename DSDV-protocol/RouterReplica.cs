@@ -63,9 +63,6 @@ namespace DSDV_protocol
 
         private void RouterLost(object sender, ElapsedEventArgs e)
         {
-            GenerateSequenceNumber(false);
-            NextHop = "-";
-            Distance = int.MaxValue;
             LostConnection(this, new EventArgs());
             lossTimer.Stop();
             lossTimer.Close();
