@@ -30,7 +30,7 @@ namespace DSDV_protocol
         {
             for(int i = 0; i < _data.Count; i++)
             {
-                if(!routingTable.Where(id=>id.Key == _data.ElementAt(i).Key).Any())
+                if(!routingTable.ContainsKey(_data.ElementAt(i).Key) && _data.ElementAt(i).Value.SequenceCount % 2 == 0)
                 {
                     RouterReplica replica = new RouterReplica(_data.ElementAt(i).Key, _neighbourId, _data.ElementAt(i).Value.SequenceNumber, int.MaxValue);
                     replica.LostConnection += self.LostConnection;
@@ -58,24 +58,28 @@ namespace DSDV_protocol
 
             for (int i = 0; i < result.Count; i++)
             {
-                var item = routingTable[result.ElementAt(i).Key];
-                if (item.SequenceCount <= _neighbourData.ElementAt(i).Value.SequenceCount)
+                if (routingTable.ContainsKey(result.ElementAt(i).Key))
                 {
-                    item.SequenceNumber = _neighbourData.ElementAt(i).Value.SequenceNumber;
-                    if (_neighbourData.ElementAt(i).Value.SequenceCount % 2 == 0)
+                    var item = routingTable[result.ElementAt(i).Key];
+                    if (item.SequenceCount <= _neighbourData.ElementAt(i).Value.SequenceCount)
                     {
-                        if (item.Distance > result.ElementAt(i).Value && result.ElementAt(i).Value >= 0)
+                        item.SequenceNumber = _neighbourData.ElementAt(i).Value.SequenceNumber;
+                        if (_neighbourData.ElementAt(i).Value.SequenceCount % 2 == 0)
                         {
-                            item.Distance = result.ElementAt(i).Value;
-                            item.NextHop = _neighbourId;
+                            if (item.Distance > result.ElementAt(i).Value && result.ElementAt(i).Value >= 0)
+                            {
+                                item.Distance = result.ElementAt(i).Value;
+                                item.NextHop = _neighbourId;
+                            }
                         }
-                    }
-                    else
-                    {
-                        if(_neighbourId == item.NextHop)
+                        else
                         {
-                            item.Distance = result.ElementAt(i).Value;
-                            item.NextHop = "-";
+                            if (_neighbourId == item.NextHop)
+                            {
+                                item.Distance = result.ElementAt(i).Value;
+                                item.NextHop = "-";
+                                item.Off = true;
+                            }
                         }
                     }
                 }
@@ -102,6 +106,22 @@ namespace DSDV_protocol
             }
         }
 
+        public void CleanUp()
+        {
+            for (int i = routingTable.Count - 1; i > -1; i--)
+            {
+                if (routingTable.ElementAt(i).Value.Off)
+                {
+                    routingTable.ElementAt(i).Value.Sent += 1;
+                }
+                if(routingTable.ElementAt(i).Value.Sent >= 2)
+                {
+                    routingTable.ElementAt(i).Value.StopTimer();
+                    routingTable.Remove(routingTable.ElementAt(i).Key);
+                }
+            }
+        }
+
         public void SetLost(string _id)
         {
             if(routingTable.ContainsKey(_id))
@@ -110,11 +130,13 @@ namespace DSDV_protocol
                 replica.Distance = int.MaxValue;
                 replica.NextHop = "-";
                 replica.GenerateSequenceNumber(false);
+                replica.Off = true;
                 foreach (var item in routingTable.Where(id => id.Value.NextHop == _id))
                 {
                     item.Value.Distance = int.MaxValue;
                     item.Value.NextHop = "-";
                     item.Value.GenerateSequenceNumber(false);
+                    item.Value.Off = true;
                 }
             }
         }
@@ -132,18 +154,6 @@ namespace DSDV_protocol
             strBuilder.Append(string.Format("--------------------------------------------------")).Append("\n");
 
             return strBuilder.ToString();
-        }
-
-        public void CleanUp()
-        {
-            for(int i = routingTable.Count - 1; i > -1; i--)
-            {
-                if (routingTable.ElementAt(i).Value.Distance == int.MaxValue && routingTable.ElementAt(i).Value.SequenceCount % 2 != 0)
-                {
-                    routingTable.ElementAt(i).Value.StopTimer();
-                    routingTable.Remove(routingTable.ElementAt(i).Key);
-                }
-            }
         }
     }
 }

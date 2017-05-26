@@ -15,6 +15,18 @@ namespace DSDV_protocol
 
         public event EventHandler<EventArgs> LostConnection;
 
+        public bool Off
+        {
+            get;
+            set;
+        }
+
+        public int Sent
+        {
+            get;
+            set;
+        }
+
         public string NextHop
         {
             get;
@@ -59,6 +71,8 @@ namespace DSDV_protocol
             Distance = _distance;
             lossTimer = new Timer(20000);
             lossTimer.Elapsed += RouterLost;
+            Off = false;
+            Sent = 0;
         }
 
         private void RouterLost(object sender, ElapsedEventArgs e)
@@ -81,6 +95,12 @@ namespace DSDV_protocol
         public void StopTimer()
         {
             lossTimer.Stop();
+        }
+
+        public void DisposeTimer()
+        {
+            StopTimer();
+            lossTimer.Dispose();
         }
 
         public void GenerateSequenceNumber(bool _isNormalUpdate)

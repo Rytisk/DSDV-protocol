@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -34,12 +35,13 @@ namespace DSDV_protocol
 
         private void UpdateRoutingTable(object sender, ElapsedEventArgs e)
         {
+            routingTable.CleanUp();
             sentNeighbours.Clear();
             selfReplica.GenerateSequenceNumber(true);
             SendMessages();
             Thread.Sleep(500);
             ReceiveRoutingTables();
-
+            Debug.Write(". ");
         }
 
         public void SendMessages()
@@ -172,7 +174,6 @@ namespace DSDV_protocol
         {
             neighbours.Remove(_id);
             routingTable.SetLost(_id);
-            //UpdateRoutingTable(this, null);                 // Kaimynai turi gaut tik is manes
             selfReplica.GenerateSequenceNumber(true);
             for (int i = 0; i < neighbours.Count; i++)
             {
@@ -187,7 +188,7 @@ namespace DSDV_protocol
 
             for(int i = 0; i < neighbours.Count; i++)
             {
-                neighbours.ElementAt(i).Value.StopTimer();
+                neighbours.ElementAt(i).Value.DisposeTimer();
             }
 
             sentNeighbours.Clear();
