@@ -122,6 +122,14 @@ namespace DSDV_protocol
             }
         }
 
+        public string GetNextHop(string _destination)
+        {
+            if (routingTable.ContainsKey(_destination))
+                return routingTable[_destination].NextHop;
+            else
+                return "-";
+        }
+
         public void SetLost(string _id)
         {
             if(routingTable.ContainsKey(_id))

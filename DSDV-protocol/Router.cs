@@ -19,6 +19,12 @@ namespace DSDV_protocol
         private SortedDictionary<string, Router> network;
         public List<string> sentNeighbours = new List<string>();
 
+        public bool SendPacket
+        {
+            get;
+            set;
+        }
+
         public string Id
         {
             get;
@@ -31,6 +37,7 @@ namespace DSDV_protocol
             network = _network;
             updateTimer = new System.Timers.Timer(6000);
             updateTimer.Elapsed += UpdateRoutingTable;
+            SendPacket = false;
         }
 
         private void UpdateRoutingTable(object sender, ElapsedEventArgs e)
@@ -38,13 +45,48 @@ namespace DSDV_protocol
             routingTable.CleanUp();
             sentNeighbours.Clear();
             selfReplica.GenerateSequenceNumber(true);
-            SendMessages();
+            SendRoutingTables();
             Thread.Sleep(500);
             ReceiveRoutingTables();
-            Debug.Write(". ");
+            Debug.Write(". ");            
         }
 
-        public void SendMessages()
+        public void SendThePacket()
+        {
+            string sendTo = routingTable.GetNextHop(Packet.Destination);
+            if (sendTo != "-")
+            {
+                if (NextHopExists(sendTo))
+                {
+                    Packet.Current = sendTo;
+                    Console.WriteLine("Sent the packet from {0} to {1}.", Id, sendTo);
+                }
+                else
+                {
+                    Console.WriteLine("Next router doensn't respond. Please wait for routing tables to update and try again.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Can't find the route.");
+            }
+            if(Packet.Current == Packet.Destination)
+            {
+                Console.WriteLine("The packet reached it's destination. Sent from {0} to {1}.", Packet.Source, Packet.Destination);
+                Packet.ToSend = false;
+            }
+        }
+
+        private bool NextHopExists(string _nextHop)
+        {
+            if (network.ContainsKey(_nextHop))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public void SendRoutingTables()
         {
             for (int i = 0; i < neighbours.Count; i++)
             {
@@ -79,7 +121,7 @@ namespace DSDV_protocol
                                 neighbours[neighbour.Id].StartTimer();
                             }
                             routingTable.Update(neighbourData, neighbour.Id);
-                            //Use break here
+                            break;
                         }
                     }
                 }

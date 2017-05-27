@@ -15,7 +15,7 @@ namespace DSDV_protocol
         {
             DistanceVector distanceVector = new DistanceVector();
 
-            Console.WriteLine("1. Start the simulation \n2. Add new router \n3. Remove router \n4. Remove link \n5. Add link \n6. Print \n7. Send message \n8. Exit");
+            Console.WriteLine("1. Start the simulation \n2. Add new router \n3. Remove router \n4. Remove link \n5. Add link \n6. Print \n7. Create packet \n8. Send Packet \n9. Exit");
             string key = "";
             bool run = true;
             while (run)
@@ -60,9 +60,14 @@ namespace DSDV_protocol
                         distanceVector.Print(id);
                         break;
                     case "7":
-                        distanceVector.SendMessage();
+                        string source = Console.ReadLine();
+                        string destination = Console.ReadLine();
+                        distanceVector.CreatePacket(source, destination);
                         break;
                     case "8":
+                        distanceVector.SendPacket();
+                        break;
+                    case "9":
                         run = false;
                         distanceVector.Clean();
                         break;

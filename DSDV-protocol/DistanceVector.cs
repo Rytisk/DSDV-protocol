@@ -28,9 +28,14 @@ namespace DSDV_protocol
             }
         }
 
-        public void SendMessage()
+        public void CreatePacket(string _source, string _destination)
         {
-            graph.SendMessage();
+            graph.CreatePacket(_source, _destination);
+        }
+
+        public void SendPacket()
+        {
+            graph.SendPacket();
         }
 
         public void AddNewRouter(string _id, string[] _ids, int[] weights)

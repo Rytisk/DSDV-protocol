@@ -34,9 +34,28 @@ namespace DSDV_protocol
             }
         }
 
-        public void SendMessage()
+        public void CreatePacket(string _source, string _destination)
         {
-            //Routers.ElementAt(0).Set(5);
+            Packet.Source = _source;
+            Packet.Destination = _destination;
+            Packet.Current = _source;
+            Packet.ToSend = true;
+        }
+
+        public void SendPacket()
+        {
+            if(Packet.ToSend)
+            {
+                Router router = Routers.FirstOrDefault(id => id.Id == Packet.Current);
+                if (router != null)
+                {
+                    router.SendThePacket();
+                }
+            }
+            else
+            {
+                Console.WriteLine("The packet is not created.");
+            }
         }
 
         public void AddPair(Router _first, Router _second, int _distance)
@@ -63,6 +82,11 @@ namespace DSDV_protocol
             Router router = Routers.Where(id => id.Id == _id).FirstOrDefault();
             router.Kill();
             Routers.Remove(router);
+            if(Packet.Current == _id)
+            {
+                Console.WriteLine("Packet was lost");
+                Packet.ToSend = false;
+            }
         }
 
         public void RemoveLink(Router _first, Router _second)
