@@ -89,18 +89,40 @@ namespace DSDV_protocol
         
         public void StartTimer()
         {
-            lossTimer.Start();
+            try
+            {
+                lossTimer.Start();
+            }
+            catch (ObjectDisposedException)
+            {
+
+            }
+            
         }
 
         public void StopTimer()
         {
-            lossTimer.Stop();
+            try
+            {
+                lossTimer.Stop();
+            }
+            catch (ObjectDisposedException)
+            {
+
+            }
         }
 
         public void DisposeTimer()
         {
             StopTimer();
-            lossTimer.Dispose();
+            try
+            {
+                lossTimer.Dispose();
+            }
+            catch (ObjectDisposedException)
+            {
+
+            }
         }
 
         public void GenerateSequenceNumber(bool _isNormalUpdate)

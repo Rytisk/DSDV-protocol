@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -20,60 +21,67 @@ namespace DSDV_protocol
             bool run = true;
             while (run)
             {
-                Console.WriteLine("Input: ");
-                key = Console.ReadLine();
-                switch (key)
+                try
                 {
-                    case "1":
-                        distanceVector.CopyDataFromFile();
-                        distanceVector.Start();
-                        break;
-                    case "2":
-                        string id = Console.ReadLine();
-                        int numberOfPairs = int.Parse(Console.ReadLine());
-                        string[] ids = new string[numberOfPairs];
-                        int[] weights = new int[numberOfPairs];
-                        for (int i = 0; i < numberOfPairs; i++)
-                        {
-                            ids[i] = Console.ReadLine();
-                            weights[i] = int.Parse(Console.ReadLine());
-                        }
-                        distanceVector.AddNewRouter(id, ids, weights);
-                        break;
-                    case "3":
-                        id = Console.ReadLine();
-                        distanceVector.RemoveRouter(id);
-                        break;
-                    case "4":
-                        string first = Console.ReadLine();
-                        string second = Console.ReadLine();
-                        distanceVector.RemoveLink(first, second);
-                        break;
-                    case "5":
-                        first = Console.ReadLine();
-                        second = Console.ReadLine();
-                        int weight = int.Parse(Console.ReadLine());
-                        distanceVector.UpdateLink(first, second, weight);
-                        break;
-                    case "6":
-                        id = Console.ReadLine();
-                        distanceVector.Print(id);
-                        break;
-                    case "7":
-                        string source = Console.ReadLine();
-                        string destination = Console.ReadLine();
-                        distanceVector.CreatePacket(source, destination);
-                        break;
-                    case "8":
-                        distanceVector.SendPacket();
-                        break;
-                    case "9":
-                        run = false;
-                        distanceVector.Clean();
-                        break;
-                    default:
-                        break;
+                    Console.WriteLine("Input: ");
+                    key = Console.ReadLine();
+                    switch (key)
+                    {
+                        case "1":
+                            distanceVector.CopyDataFromFile();
+                            distanceVector.Start();
+                            break;
+                        case "2":
+                            string id = Console.ReadLine();
+                            int numberOfPairs = int.Parse(Console.ReadLine());
+                            string[] ids = new string[numberOfPairs];
+                            int[] weights = new int[numberOfPairs];
+                            for (int i = 0; i < numberOfPairs; i++)
+                            {
+                                ids[i] = Console.ReadLine();
+                                weights[i] = int.Parse(Console.ReadLine());
+                            }
+                            distanceVector.AddNewRouter(id, ids, weights);
+                            break;
+                        case "3":
+                            id = Console.ReadLine();
+                            distanceVector.RemoveRouter(id);
+                            break;
+                        case "4":
+                            string first = Console.ReadLine();
+                            string second = Console.ReadLine();
+                            distanceVector.RemoveLink(first, second);
+                            break;
+                        case "5":
+                            first = Console.ReadLine();
+                            second = Console.ReadLine();
+                            int weight = int.Parse(Console.ReadLine());
+                            distanceVector.UpdateLink(first, second, weight);
+                            break;
+                        case "6":
+                            id = Console.ReadLine();
+                            distanceVector.Print(id);
+                            break;
+                        case "7":
+                            string source = Console.ReadLine();
+                            string destination = Console.ReadLine();
+                            distanceVector.CreatePacket(source, destination);
+                            break;
+                        case "8":
+                            distanceVector.SendPacket();
+                            break;
+                        case "9":
+                            run = false;
+                            distanceVector.Clean();
+                            break;
+                        default:
+                            break;
 
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
                 }
             }
         }

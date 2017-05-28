@@ -82,13 +82,14 @@ namespace DSDV_protocol
                             }
                         }
                     }
+                    else if (item.SequenceCount > _neighbourData.ElementAt(i).Value.SequenceCount && _neighbourData.ElementAt(i).Value.SequenceCount % 2 != 0 && item.NextHop == _neighbourId)
+                    {
+                        item.Distance = int.MaxValue;
+                        item.NextHop = "-";
+                       // item.SequenceNumber = _neighbourData.ElementAt(i).Value.SequenceNumber;
+                    }
                 }
-                /*else if(item.SequenceCount > _neighbourData.ElementAt(i).Value.SequenceCount && _neighbourData.ElementAt(i).Value.SequenceCount % 2 != 0 && item.NextHop == _neighbourId)
-                {
-                    item.Distance = int.MaxValue;
-                    item.NextHop = "-";
-                    item.SequenceNumber = _neighbourData.ElementAt(i).Value.SequenceNumber;
-                }*/
+                
             }
         }
 

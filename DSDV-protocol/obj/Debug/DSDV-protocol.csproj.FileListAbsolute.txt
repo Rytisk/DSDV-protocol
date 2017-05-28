@@ -4,3 +4,9 @@ E:\Projects\DSDV-protocol\DSDV-protocol\bin\Debug\DSDV-protocol.pdb
 E:\Projects\DSDV-protocol\DSDV-protocol\obj\Debug\DSDV-protocol.csprojResolveAssemblyReference.cache
 E:\Projects\DSDV-protocol\DSDV-protocol\obj\Debug\DSDV-protocol.exe
 E:\Projects\DSDV-protocol\DSDV-protocol\obj\Debug\DSDV-protocol.pdb
+E:\Projects\dsdv\DSDV-protocol\DSDV-protocol\bin\Debug\DSDV-protocol.exe.config
+E:\Projects\dsdv\DSDV-protocol\DSDV-protocol\obj\Debug\DSDV-protocol.exe
+E:\Projects\dsdv\DSDV-protocol\DSDV-protocol\obj\Debug\DSDV-protocol.pdb
+E:\Projects\dsdv\DSDV-protocol\DSDV-protocol\bin\Debug\DSDV-protocol.exe
+E:\Projects\dsdv\DSDV-protocol\DSDV-protocol\bin\Debug\DSDV-protocol.pdb
+E:\Projects\dsdv\DSDV-protocol\DSDV-protocol\obj\Debug\DSDV-protocol.csprojResolveAssemblyReference.cache

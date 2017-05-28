@@ -18,6 +18,8 @@ namespace DSDV_protocol
         private SortedDictionary<string, RouterReplica> neighbours = new SortedDictionary<string, RouterReplica>();
         private SortedDictionary<string, Router> network;
         public List<string> sentNeighbours = new List<string>();
+        private static readonly Object obj = new Object();
+        private static readonly Object obj2 = new Object();
 
         public bool SendPacket
         {
@@ -42,13 +44,13 @@ namespace DSDV_protocol
 
         private void UpdateRoutingTable(object sender, ElapsedEventArgs e)
         {
-            routingTable.CleanUp();
-            sentNeighbours.Clear();
-            selfReplica.GenerateSequenceNumber(true);
-            SendRoutingTables();
-            Thread.Sleep(500);
-            ReceiveRoutingTables();
-            Debug.Write(". ");            
+                routingTable.CleanUp();
+                sentNeighbours.Clear();
+                selfReplica.GenerateSequenceNumber(true);
+                SendRoutingTables();
+                Thread.Sleep(500);
+                ReceiveRoutingTables();
+                Debug.Write(". ");
         }
 
         public void SendThePacket()
@@ -97,35 +99,39 @@ namespace DSDV_protocol
 
         public void ReceiveRoutingTables()
         {
-            for(int i = 0; i < network.Count; i++)
+            lock (obj2)
             {
-                Router neighbour = network.ElementAt(i).Value;
-                if (neighbour != null)
+                for (int i = 0; i < network.Count; i++)
                 {
-                    List<string> neighboursSent = neighbour.sentNeighbours.ToList();
-                    for(int j =0; j < neighboursSent.Count; j++)
+                    Router neighbour = network.ElementAt(i).Value;
+                    if (neighbour != null)
                     {
-                        if (neighboursSent.ElementAt(j) == Id)
+                        List<string> neighboursSent = neighbour.sentNeighbours.ToList();
+                        for (int j = 0; j < neighboursSent.Count; j++)
                         {
-                            SortedDictionary<string, RouterReplica> neighbourData = new SortedDictionary<string, RouterReplica>(neighbour.GetRoutingData());
-                            if (!IsMyNeighbour(neighbour.Id))                   
+                            if (neighboursSent.ElementAt(j) == Id)
                             {
-                                RouterReplica replica = GenerateReplica(neighbour, GetDistance(neighbourData));
-                                neighbours.Add(neighbour.Id, replica);
-                                routingTable.UpdateLink(replica);
-                                neighbours[neighbour.Id].StartTimer();
+                                SortedDictionary<string, RouterReplica> neighbourData = new SortedDictionary<string, RouterReplica>(neighbour.GetRoutingData());
+                                if (!IsMyNeighbour(neighbour.Id))
+                                {
+                                    RouterReplica replica = GenerateReplica(neighbour, GetDistance(neighbourData));
+                                    neighbours.Add(neighbour.Id, replica);
+                                    routingTable.UpdateLink(replica);
+                                    neighbours[neighbour.Id].StartTimer();
+                                }
+                                else
+                                {
+                                    neighbours[neighbour.Id].StopTimer();
+                                    neighbours[neighbour.Id].StartTimer();
+                                }
+                                routingTable.Update(neighbourData, neighbour.Id);
+                                break;
                             }
-                            else
-                            {
-                                neighbours[neighbour.Id].StopTimer();
-                                neighbours[neighbour.Id].StartTimer();
-                            }
-                            routingTable.Update(neighbourData, neighbour.Id);
-                            break;
                         }
                     }
                 }
             }
+            
            
         }
 
